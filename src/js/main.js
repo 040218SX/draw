@@ -17,6 +17,17 @@ var draw = (function(){
     var x = 0;
     var y = 0;
 
+    //start x,y position
+    var x1 = 0;
+    var y1 = 0;
+
+    //end x,y position
+    var x2 = 0;
+    var y2 = 0;
+
+    //set the shape to be drawn
+    var shape = '';
+
     return {
 
         //Set the x,y cords based on current event data
@@ -31,15 +42,32 @@ var draw = (function(){
             document.getElementById('trackY').innerHTML = 'Y: ' + y;
         },
 
+        //Sets the shape to be drawn
+        setShape: function(shp){
+            shape = shp;
+            console.log(shape);
+        },
+
+        //Set x1,y1
+        setStart: function(){
+            x1=x;
+            y1=y;
+        },
+
+        //Set x2,y2
+        setEnd: function(){
+            x2=x;
+            y2=y;
+        },
+
         //Access the canvas
         getCanvas: function(){
             return canvas;
         },
 
-        //Draw a rectangle
-        drawRect: function(){
-            ctx.fillStyle = 'rgb(200, 0, 0)';
-            ctx.fillRect(10, 10, 55, 50);
+        drawRect: function(x, y, h, w){
+            ctx.fillStyle = '#' + Math.floor(Math.random()*16777215).toString(16);
+            ctx.fillRect(x1, y1, (x2-x1), (y2-y1));
         },
 
         //Initialize the object, this must be called before anything else
@@ -55,9 +83,22 @@ var draw = (function(){
 //Initialize draw
 draw.init();
 
-draw.drawRect();
 
 draw.getCanvas().addEventListener('mousemove', function(evt){
     draw.setXY(evt);
     draw.writeXY();
+});
+
+draw.getCanvas().addEventListener('mousedown', function(){
+    draw.setStart();
+});
+
+draw.getCanvas().addEventListener('mouseup', function(){
+    draw.setEnd();
+    draw.drawRect();
+});
+
+
+document.getElementById('btnRect').addEventListener('click', function(){
+    draw.setShape('Rectangle');
 });
