@@ -303,7 +303,7 @@ html {
   display: flex; }
 
 nav {
-  flex: 0 0 300px;
+  flex: 0 0 140px;
   background: #ccc;
   min-height: 100vh; }
 
