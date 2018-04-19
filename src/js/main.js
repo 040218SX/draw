@@ -197,13 +197,25 @@ var draw = (function(){
             var a = (x1-x2);
             var b = (y1-y2);
             var c = Math.sqrt(a*a + b*b);
+            var d = x1+c;
+            var e = y1+c;
 
+            //Drag left to right
+            if(x1>x2){
+                d=x1-c;
+            }
+
+            //Drag up
+            if(y1>y2){
+                e=y1-c;
+            }
+        
             ctx.fillStyle = this.getFillColor();
             ctx.strokeStyle = this.getStrokeColor();
             ctx.beginPath();
             ctx.moveTo(x1, y1);
 
-            ctx.lineTo(x1+c, y1+c);
+            ctx.lineTo(d,e);
             ctx.lineTo(x2, y2);
 
             ctx.lineTo(x1, y1);
