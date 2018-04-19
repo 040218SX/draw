@@ -142,6 +142,8 @@ var draw = (function(){
                 this.drawCircle();
             }else if(shape==='path'){
                 this.drawPath();
+            }else if(shape==='triangle'){
+                this.drawTriangle();
             }else{
                 alert('Please choose a shape');
             }
@@ -187,6 +189,26 @@ var draw = (function(){
             ctx.moveTo(lx, ly);
             ctx.lineTo(x, y);
             ctx.stroke();
+        },
+
+        //Draw a triangle
+        drawTriangle: function(){
+
+            var a = (x1-x2);
+            var b = (y1-y2);
+            var c = Math.sqrt(a*a + b*b);
+
+            ctx.fillStyle = this.getFillColor();
+            ctx.strokeStyle = this.getStrokeColor();
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+
+            ctx.lineTo(x1+c, y1+c);
+            ctx.lineTo(x2, y2);
+
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+            ctx.fill();
         },
 
         //Initialize the object, this must be called before anything else
@@ -240,10 +262,22 @@ document.getElementById('btnPath').addEventListener('click', function(){
     draw.setShape('path');
 });
 
+document.getElementById('btnTriangle').addEventListener('click', function(){
+    draw.setShape('triangle');
+});
+
 document.getElementById('strokeColor').addEventListener('change', function(){
     draw.setStrokeColor(document.getElementById('strokeColor').value);
 });
 
 document.getElementById('randStrokeColor').addEventListener('change', function(){
     draw.setStrokeColor('');
+});
+
+document.getElementById('fillColor').addEventListener('change', function(){
+    draw.setFillColor(document.getElementById('fillColor').value);
+});
+
+document.getElementById('randFillColor').addEventListener('change', function(){
+    draw.setFillColor('');
 });
