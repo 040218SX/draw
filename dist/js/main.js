@@ -41,6 +41,13 @@ var draw = (function(){
     //fill color
     var fill='';
 
+    //3 point variables
+    var points = [];
+    var i = 0;
+
+    //Tracking
+    var stack = [];
+
     return {
         //Returns a random color
         randColor: function(){
@@ -75,6 +82,23 @@ var draw = (function(){
             }
 
             return this.randColor();
+        },
+
+        //Draw a three point triangle
+        setPoint: function(){
+
+            points[i]=[];
+            points[i]['x']=x;
+            points[i]['y']=y;
+
+            if(points.length>2){
+                this.draw();
+                i=0;
+                points=[];
+            }else{
+                i++;
+            }
+            
         },
 
         //Set the x,y cords based on current event data
@@ -144,10 +168,13 @@ var draw = (function(){
                 this.drawPath();
             }else if(shape==='triangle'){
                 this.drawTriangle();
+            }else if(shape==='3-point'){
+                this.draw3Point();
             }else{
                 alert('Please choose a shape');
             }
             ctx.save();
+            console.log(stack);
         },
 
         //Draw a line
@@ -157,6 +184,19 @@ var draw = (function(){
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
             ctx.stroke();
+
+            stack.push({
+                'shape': 'line',
+                'cords': {
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2
+                },
+                'styles': {
+                    'stroke': ctx.strokeStyle
+                }
+            });
         },
 
         //Draw a rectangle
@@ -165,6 +205,20 @@ var draw = (function(){
             ctx.strokeStyle = this.getStrokeColor();
             ctx.fillRect(x1, y1, (x2-x1), (y2-y1));
             ctx.strokeRect(x1, y1, (x2-x1), (y2-y1));
+
+            stack.push({
+                'shape': 'rect',
+                'cords': {
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2
+                },
+                'styles': {
+                    'stroke': ctx.strokeStyle,
+                    'fill': ctx.fillStyle
+                }
+            });
         },
 
         //Draw a circle
@@ -180,6 +234,21 @@ var draw = (function(){
             ctx.arc(x1, y1, radius, 0, 2*Math.PI);
             ctx.stroke();
             ctx.fill();
+
+            stack.push({
+                'shape': 'circle',
+                'cords': {
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2,
+                    'r' : radius
+                },
+                'styles': {
+                    'stroke': ctx.strokeStyle,
+                    'fill': ctx.fillStyle
+                }
+            });
         },
 
         //Draw a path during a drag event
@@ -189,6 +258,20 @@ var draw = (function(){
             ctx.moveTo(lx, ly);
             ctx.lineTo(x, y);
             ctx.stroke();
+
+            stack.push({
+                'shape': 'path',
+                'cords': {
+                    'lx': lx,
+                    'ly': ly,
+                    'x': x,
+                    'y': y,
+
+                },
+                'styles': {
+                    'stroke': ctx.strokeStyle
+                }
+            });
         },
 
         //Draw a triangle
@@ -197,6 +280,7 @@ var draw = (function(){
             var a = (x1-x2);
             var b = (y1-y2);
             var c = Math.sqrt(a*a + b*b);
+
             var d = x1+c;
             var e = y1+c;
 
@@ -221,6 +305,48 @@ var draw = (function(){
             ctx.lineTo(x1, y1);
             ctx.stroke();
             ctx.fill();
+
+            stack.push({
+                'shape': 'triangle',
+                'cords': {
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2
+                },
+                'styles': {
+                    'stroke': ctx.strokeStyle,
+                    'fill': ctx.fillStyle
+                }
+            });
+        },
+
+        //Draw a triangle
+        draw3Point: function(){
+
+            ctx.fillStyle = this.getFillColor();
+            ctx.strokeStyle = this.getStrokeColor();
+
+            ctx.beginPath();
+
+            ctx.moveTo(points[0]['x'], points[0]['y']);
+            ctx.lineTo(points[1]['x'], points[1]['y']);
+            ctx.lineTo(points[2]['x'], points[2]['y']);
+            ctx.lineTo(points[0]['x'], points[0]['y']);
+
+            ctx.stroke();
+            ctx.fill();
+
+            stack.push({
+                'shape': '3-point',
+                'cords': {
+                    'points': points
+                },
+                'styles': {
+                    'stroke': ctx.strokeStyle,
+                    'fill': ctx.fillStyle
+                }
+            });
         },
 
         //Initialize the object, this must be called before anything else
@@ -247,14 +373,24 @@ draw.getCanvas().addEventListener('mousemove', function(evt){
 });
 
 draw.getCanvas().addEventListener('mousedown', function(){
-    draw.setStart();
-    draw.setIsDrawing(true);
+    if(draw.getShape()!=='3-point'){
+        draw.setStart();
+        draw.setIsDrawing(true);
+    }
 });
 
 draw.getCanvas().addEventListener('mouseup', function(){
-    draw.setEnd();
-    draw.draw();
-    draw.setIsDrawing(false);
+    if(draw.getShape()!=='3-point'){
+        draw.setEnd();
+        draw.draw();
+        draw.setIsDrawing(false);
+    }
+});
+
+draw.getCanvas().addEventListener('mouseup', function(){
+    if(draw.getShape()==='3-point'){
+        draw.setPoint();
+    }
 });
 
 document.getElementById('btnRect').addEventListener('click', function(){
@@ -276,6 +412,10 @@ document.getElementById('btnPath').addEventListener('click', function(){
 
 document.getElementById('btnTriangle').addEventListener('click', function(){
     draw.setShape('triangle');
+});
+
+document.getElementById('btn3Point').addEventListener('click', function(){
+    draw.setShape('3-point');
 });
 
 document.getElementById('strokeColor').addEventListener('change', function(){
