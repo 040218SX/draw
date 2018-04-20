@@ -174,7 +174,6 @@ var draw = (function(){
                 alert('Please choose a shape');
             }
             ctx.save();
-            console.log(stack);
         },
 
         //Draw a line
@@ -207,8 +206,8 @@ var draw = (function(){
             ctx.strokeRect(x1, y1, (x2-x1), (y2-y1));
 
             stack.push({
-                'shape': 'rect',
-                'cords': {
+                'shape':'rectangle',
+                'cords':{
                     'x1': x1,
                     'y1': y1,
                     'x2': x2,
@@ -349,6 +348,53 @@ var draw = (function(){
             });
         },
 
+        clear: function(){
+            ctx.clearRect(0, 0, mHeight, mWidth);
+        },
+
+        redraw: function(){
+
+            for(item in stack){
+                //console.log(stack[item].shape);
+                switch(stack[item].shape){
+
+                    case 'path':
+                        shape=stack[item].shape;
+                        lx = stack[item].cords.lx;
+                        ly = stack[item].cords.ly;
+                        x = stack[item].cords.x;
+                        y = stack[item].cords.y;
+                        ctx.strokeStyle = stack[item].styles.stroke;
+                        break;
+
+                    case 'circle':
+                    case 'line':
+                    case 'rectangle':
+                    case 'triangle':
+                        shape=stack[item].shape;
+                        x1 = stack[item].cords.x1;
+                        y1 = stack[item].cords.y1;
+                        x2 = stack[item].cords.x2;
+                        y2 = stack[item].cords.y2;
+                        ctx.strokeStyle = stack[item].styles.stroke;
+                        ctx.fillStyle = stack[item].styles.fill;
+                        break;
+
+                    case '3-point':
+                        shape=stack[item].shape;
+                        points = stack[item].cords.points;
+                        ctx.strokeStyle = stack[item].styles.stroke;
+                        ctx.fillStyle = stack[item].styles.fill;
+                        break;
+                }
+
+
+
+                this.draw();
+            }
+
+        },
+
         //Initialize the object, this must be called before anything else
         init: function(){
             canvas.width = mWidth;
@@ -433,3 +479,12 @@ document.getElementById('fillColor').addEventListener('change', function(){
 document.getElementById('randFillColor').addEventListener('change', function(){
     draw.setFillColor('');
 });
+
+document.getElementById('btnClear').addEventListener('click', function(){
+    draw.clear();
+});
+
+document.getElementById('btnRedraw').addEventListener('click', function(){
+    draw.redraw();
+});
+
